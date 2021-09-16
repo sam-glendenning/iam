@@ -85,7 +85,7 @@ import net.minidev.json.JSONObject;
 @WebAppConfiguration
 @Transactional
 @TestPropertySource(properties = {
-    // @formatter:off
+// @formatter:off
     "iam.jwt-profile.default-profile=wlcg",
     "scope.matchers[0].name=storage.read",
     "scope.matchers[0].type=path",
@@ -202,6 +202,35 @@ public class WLCGProfileIntegrationTests extends EndpointsTestUtils {
     assertThat(token.getJWTClaimsSet().getClaim("wlcg.groups"), nullValue());
     assertThat(token.getJWTClaimsSet().getAudience(), hasSize(1));
     assertThat(token.getJWTClaimsSet().getAudience(), hasItem(ALL_AUDIENCES_VALUE));
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void testWlcgProfileIdToken() throws Exception {
+
+    String idTokenString = (String) new AccessTokenGetter().grantType("password")
+      .clientId(CLIENT_ID)
+      .clientSecret(CLIENT_SECRET)
+      .username(USERNAME)
+      .password(PASSWORD)
+      .scope("openid profile wlcg.groups")
+      .getTokenResponseObject()
+      .getAdditionalInformation()
+      .get("id_token");
+
+    JWT idToken = JWTParser.parse(idTokenString);
+    assertThat(idToken.getJWTClaimsSet().getClaim("wlcg.ver"), is("1.0"));
+    assertThat(idToken.getJWTClaimsSet().getClaim("groups"), nullValue());
+    assertThat(idToken.getJWTClaimsSet().getClaim("wlcg.groups"), notNullValue());
+    assertThat(idToken.getJWTClaimsSet().getStringListClaim("wlcg.groups"),
+        hasItems("/Analysis", "/Production"));
+    assertThat(idToken.getJWTClaimsSet().getClaim("name"), is("Test User"));
+    assertThat(idToken.getJWTClaimsSet().getClaim("preferred_username"), is("test"));
+    assertThat(idToken.getJWTClaimsSet().getClaim("organisation_name"), is("indigo-dc"));
+    assertThat(idToken.getJWTClaimsSet().getClaim("auth_time"), notNullValue());
+    assertThat(idToken.getJWTClaimsSet().getClaim("jti"), notNullValue());
+    assertThat(idToken.getJWTClaimsSet().getAudience(), hasSize(1));
+    assertThat(idToken.getJWTClaimsSet().getAudience(), hasItem("password-grant"));
   }
 
   @Test
@@ -402,6 +431,28 @@ public class WLCGProfileIntegrationTests extends EndpointsTestUtils {
 
   }
 
+
+  @Test
+  public void testWlcgProfileUserIdentityTokenExchangeNoScopeParameter() throws Exception {
+    String subjectToken = new AccessTokenGetter().grantType(PASSWORD_GRANT_TYPE)
+      .clientId(SUBJECT_CLIENT_ID)
+      .clientSecret(SUBJECT_CLIENT_SECRET)
+      .username(USERNAME)
+      .password(PASSWORD)
+      .scope("openid profile")
+      .audience(ACTOR_CLIENT_ID)
+      .getAccessTokenValue();
+
+    mvc
+      .perform(post("/token").with(httpBasic(ACTOR_CLIENT_ID, ACTOR_CLIENT_SECRET))
+        .param("grant_type", TOKEN_EXCHANGE_GRANT_TYPE)
+        .param("subject_token", subjectToken)
+        .param("subject_token_type", "urn:ietf:params:oauth:token-type:jwt"))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.error").value("invalid_request"))
+      .andExpect(jsonPath("$.error_description", containsString("scope parameter is required")));
+  }
+
   @Test
   public void testWlcgProfileUserIdentityTokenExchange() throws Exception {
 
@@ -414,6 +465,8 @@ public class WLCGProfileIntegrationTests extends EndpointsTestUtils {
       .audience(ACTOR_CLIENT_ID)
       .getAccessTokenValue();
 
+    // Exchange the token to client 'token-exchange-actor', reduce a bit the scopes
+    // but request a refresh token
     String tokenResponse =
         mvc
           .perform(post("/token").with(httpBasic(ACTOR_CLIENT_ID, ACTOR_CLIENT_SECRET))
@@ -450,25 +503,24 @@ public class WLCGProfileIntegrationTests extends EndpointsTestUtils {
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.active", equalTo(true)));
 
-    tokenResponse =
-        mvc
-          .perform(post("/token").with(httpBasic(ACTOR_CLIENT_ID, ACTOR_CLIENT_SECRET))
-            .param("grant_type", TOKEN_EXCHANGE_GRANT_TYPE)
-            .param("subject_token", tokenResponseObject.getValue())
-            .param("subject_token_type", "urn:ietf:params:oauth:token-type:jwt")
-            .param("scope",
-                "storage.read:/subpath storage.write:/subpath/test openid offline_access")
-            .param("audience", "se4.example"))
-          .andExpect(status().isOk())
-          .andExpect(jsonPath("$.access_token").exists())
-          .andExpect(jsonPath("$.refresh_token").exists())
-          .andExpect(jsonPath("$.scope",
-              allOf(containsString("storage.read:/subpath "), containsString("offline_access"),
-                  containsString("storage.write:/subpath/test"), containsString("openid"),
-                  containsString("offline_access"))))
-          .andReturn()
-          .getResponse()
-          .getContentAsString();
+    // Check that the token can be further exchange by the same actor client
+    // without the offline_access scope
+    tokenResponse = mvc
+      .perform(post("/token").with(httpBasic(ACTOR_CLIENT_ID, ACTOR_CLIENT_SECRET))
+        .param("grant_type", TOKEN_EXCHANGE_GRANT_TYPE)
+        .param("subject_token", tokenResponseObject.getValue())
+        .param("subject_token_type", "urn:ietf:params:oauth:token-type:jwt")
+        .param("scope", "storage.read:/subpath storage.write:/subpath/test openid")
+        .param("audience", "se4.example"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.access_token").exists())
+      .andExpect(jsonPath("$.refresh_token").doesNotExist())
+      .andExpect(jsonPath("$.scope",
+          allOf(containsString("storage.read:/subpath "),
+              containsString("storage.write:/subpath/test"), containsString("openid"))))
+      .andReturn()
+      .getResponse()
+      .getContentAsString();
 
     DefaultOAuth2AccessToken tokenResponseObject2 =
         mapper.readValue(tokenResponse, DefaultOAuth2AccessToken.class);
@@ -714,6 +766,5 @@ public class WLCGProfileIntegrationTests extends EndpointsTestUtils {
     assertThat(claims.getJSONObjectClaim("attr"), notNullValue());
     assertThat(claims.getJSONObjectClaim("attr").getAsString("test"), is("test"));
   }
-
 
 }

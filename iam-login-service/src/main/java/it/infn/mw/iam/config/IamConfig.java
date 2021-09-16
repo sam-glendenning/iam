@@ -142,7 +142,7 @@ public class IamConfig {
         new AarcJWTProfileUserinfoHelper(props, userInfoService, claimHelper);
 
     AarcJWTProfileIdTokenCustomizer idHelper =
-        new AarcJWTProfileIdTokenCustomizer(accountRepo, converter, claimHelper);
+        new AarcJWTProfileIdTokenCustomizer(accountRepo, converter, claimHelper, props);
 
     BaseIntrospectionHelper intrHelper = new AarcJWTProfileTokenIntrospectionHelper(props,
         new DefaultIntrospectionResultAssembler(), registry, claimHelper);
@@ -163,7 +163,7 @@ public class IamConfig {
         new IamJWTProfileUserinfoHelper(props, userInfoService, proc);
 
     IamJWTProfileIdTokenCustomizer idHelper =
-        new IamJWTProfileIdTokenCustomizer(accountRepo, converter, claimHelper);
+        new IamJWTProfileIdTokenCustomizer(accountRepo, converter, claimHelper, props);
 
     BaseIntrospectionHelper intrHelper = new IamJWTProfileTokenIntrospectionHelper(props,
         new DefaultIntrospectionResultAssembler(), registry);
@@ -175,10 +175,12 @@ public class IamConfig {
   JWTProfile wlcgJwtProfile(IamProperties props, IamAccountRepository accountRepo,
       ScopeClaimTranslationService converter, AttributeMapHelper attributeMapHelper,
       UserInfoService userInfoService, ExternalAuthenticationInfoProcessor proc,
-      ScopeMatcherRegistry registry) {
+      ScopeMatcherRegistry registry, ScopeClaimTranslationService claimTranslationService,
+      ClaimValueHelper claimValueHelper) {
 
     return new WLCGJWTProfile(props, userInfoService, accountRepo, new WLCGGroupHelper(),
-        attributeMapHelper, new DefaultIntrospectionResultAssembler(), registry);
+        attributeMapHelper, new DefaultIntrospectionResultAssembler(), registry,
+        claimTranslationService, claimValueHelper);
   }
 
   @Bean

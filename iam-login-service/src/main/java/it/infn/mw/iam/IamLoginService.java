@@ -17,6 +17,7 @@ package it.infn.mw.iam;
 
 import org.mitre.discovery.web.DiscoveryEndpoint;
 import org.mitre.oauth2.web.OAuthConfirmationController;
+import org.mitre.openid.connect.web.JWKSetPublishingEndpoint;
 import org.mitre.openid.connect.web.RootController;
 import org.mitre.openid.connect.web.UserInfoEndpoint;
 import org.springframework.boot.SpringApplication;
@@ -68,6 +69,8 @@ excludeFilters = {
         value=HealthEndpoint.class),
     @ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
     value=OAuthConfirmationController.class)
+    @ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
+        value=JWKSetPublishingEndpoint.class)
 })
 // @formatter:on
 
