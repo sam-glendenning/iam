@@ -68,7 +68,7 @@ excludeFilters = {
     @ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
         value=HealthEndpoint.class),
     @ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
-    value=OAuthConfirmationController.class)
+        value=OAuthConfirmationController.class),
     @ComponentScan.Filter(type=FilterType.ASSIGNABLE_TYPE,
         value=JWKSetPublishingEndpoint.class)
 })
