@@ -19,13 +19,13 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "mfa")
+@Table(name = "iam_totp_mfa")
 public class IamTotpMfa implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne(mappedBy = "totpMfa")
+  @OneToOne()
   private IamAccount account;
 
   @Column(name = "secret")
@@ -44,9 +44,11 @@ public class IamTotpMfa implements Serializable {
 
   // TODO do we need a UUID?
 
-  @OneToMany(mappedBy = "totpMfa", cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+  @OneToMany(mappedBy = "totpMfa", cascade = CascadeType.ALL, fetch = FetchType.LAZY,
       orphanRemoval = true)
   private Set<IamTotpRecoveryCode> recoveryCodes = new HashSet<>();
+
+  public IamTotpMfa() {}
 
   public IamTotpMfa(String secret) {
     this.secret = secret;
