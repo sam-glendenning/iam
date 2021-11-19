@@ -26,8 +26,8 @@ public class IamTotpRecoveryCode implements Serializable {
   @Column(name = "code")
   private String code;
 
-  @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(name = "iam_totp_mfa", referencedColumnName = "id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(referencedColumnName = "id", nullable = false)
   private IamTotpMfa totpMfa;
 
   @Temporal(TemporalType.TIMESTAMP)
@@ -37,6 +37,8 @@ public class IamTotpRecoveryCode implements Serializable {
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "lastupdatetime", nullable = false)
   private Date lastUpdateTime;
+
+  public IamTotpRecoveryCode() {}
 
   public IamTotpRecoveryCode(String code) {
     this.code = code;
