@@ -106,12 +106,12 @@
   <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/services/attributes.service.js"></script>
   <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/services/proxycert.service.js"></script>
   <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/services/find.service.js"></script>
+  <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/services/authenticator-app.service.js"></script>
   
+  <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/controllers/authenticator-app.controller.js"></script>
   <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/controllers/registration.controller.js"></script>
   <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/controllers/account-privileges.controller.js"></script>
-  <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/controllers/disable-authenticator-app.controller.js"></script>
   <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/controllers/edit-password.controller.js"></script>
-  <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/controllers/enable-authenticator-app.controller.js"></script>
   <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/controllers/user-mfa.controller.js"></script>
 
   <script type="text/javascript" src="${resourcesPrefix}/iam/apps/dashboard-app/components/header/header.directive.js"></script>
