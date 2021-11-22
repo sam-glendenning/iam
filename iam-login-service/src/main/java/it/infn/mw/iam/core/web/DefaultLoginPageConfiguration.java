@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2019
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  */
 package it.infn.mw.iam.core.web;
 
-import static it.infn.mw.iam.api.account_linking.AccountLinkingConstants.ACCOUNT_LINKING_DISABLE_PROPERTY;
-
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Strings;
@@ -51,8 +49,8 @@ public class DefaultLoginPageConfiguration implements LoginPageConfiguration, En
   private boolean localAuthenticationVisible;
   private boolean showLinkToLocalAuthn;
 
-  @Value(ACCOUNT_LINKING_DISABLE_PROPERTY)
-  private Boolean accountLinkingDisable;
+  @Value("${iam.account-linking.enable}")
+  private Boolean accountLinkingEnabled;
 
   private OidcValidatedProviders providers;
 
@@ -69,18 +67,13 @@ public class DefaultLoginPageConfiguration implements LoginPageConfiguration, En
   public void init() {
 
     oidcEnabled = !providers.getValidatedProviders().isEmpty();
-    githubEnabled = activeProfilesContains("github");
-    samlEnabled = activeProfilesContains("saml");
-    registrationEnabled = activeProfilesContains("registration");
+    githubEnabled = env.acceptsProfiles(Profiles.of("github"));
+    samlEnabled = env.acceptsProfiles(Profiles.of("saml"));
+    registrationEnabled = env.acceptsProfiles(Profiles.of("registration"));
     localAuthenticationVisible = IamProperties.LocalAuthenticationLoginPageMode.VISIBLE
       .equals(iamProperties.getLocalAuthn().getLoginPageVisibility());
     showLinkToLocalAuthn = IamProperties.LocalAuthenticationLoginPageMode.HIDDEN_WITH_LINK
       .equals(iamProperties.getLocalAuthn().getLoginPageVisibility());
-  }
-
-  private boolean activeProfilesContains(String val) {
-
-    return Arrays.asList(env.getActiveProfiles()).contains(val);
   }
 
   @Override
@@ -116,7 +109,7 @@ public class DefaultLoginPageConfiguration implements LoginPageConfiguration, En
 
   @Override
   public boolean isAccountLinkingEnabled() {
-    return !accountLinkingDisable.booleanValue();
+    return accountLinkingEnabled.booleanValue();
   }
 
   @Override

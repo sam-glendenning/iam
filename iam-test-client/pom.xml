@@ -7,7 +7,7 @@
   <parent>
     <groupId>it.infn.mw</groupId>
     <artifactId>iam-parent</artifactId>
-    <version>1.7.1</version>
+    <version>1.8.0-spring-update-SNAPSHOT</version>
   </parent>
 
   <artifactId>iam-test-client</artifactId>
@@ -34,7 +34,7 @@
 
     <dependency>
       <groupId>org.webjars</groupId>
-      <artifactId>webjars-locator</artifactId>
+      <artifactId>webjars-locator-core</artifactId>
     </dependency>
 
     <dependency>
@@ -60,17 +60,6 @@
     <dependency>
       <groupId>org.springframework.security.oauth</groupId>
       <artifactId>spring-security-oauth2</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-jwt</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcpkix-jdk15on</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>

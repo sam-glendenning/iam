@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2019
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package it.infn.mw.iam.test.oauth;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -29,11 +29,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,13 +40,11 @@ import com.jayway.restassured.response.ValidatableResponse;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 
-import it.infn.mw.iam.IamLoginService;
 import it.infn.mw.iam.test.TestUtils;
+import it.infn.mw.iam.test.util.annotation.IamRandomPortIntegrationTest;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {IamLoginService.class})
-@WebIntegrationTest(randomPort = true)
-@Transactional
+@RunWith(SpringRunner.class)
+@IamRandomPortIntegrationTest
 public class AuthorizationCodeIntegrationTests {
 
   @Value("${local.server.port}")
@@ -158,7 +153,7 @@ public class AuthorizationCodeIntegrationTests {
       .when()
         .post(authorizeUrl)
       .then()
-        .statusCode(HttpStatus.FOUND.value());
+        .statusCode(HttpStatus.SEE_OTHER.value());
       // @formatter:on
 
       String authzCode = UriComponentsBuilder.fromHttpUrl(resp4.extract().header("Location"))

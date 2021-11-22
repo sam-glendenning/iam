@@ -7,9 +7,17 @@ def maybeArchiveJUnitReports(){
   def hasJunitReports = fileExists 'iam-login-service/target/surefire-reports'
   if (hasJunitReports) {
     junit '**/target/surefire-reports/TEST-*.xml'
+  }
+}
+
+def maybeArchiveJUnitReportsWithJacoco(){
+  def hasJunitReports = fileExists 'iam-login-service/target/surefire-reports'
+  if (hasJunitReports) {
+    junit '**/target/surefire-reports/TEST-*.xml'
     step( [ $class: 'JacocoPublisher' ] )
   }
 }
+
 
 pipeline {
 
@@ -45,7 +53,7 @@ pipeline {
           label "${kubeLabel}"
           cloud 'Kube mwdevel'
           defaultContainer 'runner'
-          inheritFrom 'iam-template'
+          inheritFrom 'iam-template-java11'
         }
       }
 
@@ -85,6 +93,14 @@ pipeline {
 
           steps {
             sh 'mvn -B test'
+          }
+
+          post {
+            always {
+              script {
+                maybeArchiveJUnitReports()
+              }
+            }
           }
         }
 
@@ -128,7 +144,7 @@ pipeline {
           post {
             always {
               script {
-                maybeArchiveJUnitReports()
+                maybeArchiveJUnitReportsWithJacoco()
               }
             }
             unsuccessful {

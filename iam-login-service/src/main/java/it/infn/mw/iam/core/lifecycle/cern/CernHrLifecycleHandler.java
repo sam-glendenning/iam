@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2019
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -247,7 +247,7 @@ public class CernHrLifecycleHandler implements Runnable, SchedulingConfigurer {
   @Override
   public void run() {
 
-    Pageable pageRequest = new PageRequest(0, cernProperties.getTask().getPageSize());
+    Pageable pageRequest = PageRequest.of(0, cernProperties.getTask().getPageSize());
 
     while (true) {
       Page<IamAccount> accountsPage = accountRepo.findByLabelPrefixAndName(LABEL_CERN_PREFIX,
