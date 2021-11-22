@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2019
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import static java.util.Objects.isNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,13 +35,7 @@ public class DefaultStartRegistrationController {
 
   @Autowired
   public DefaultStartRegistrationController(Environment env) {
-    registrationProfileEnabled = false;
-
-    for (String ap : env.getActiveProfiles()) {
-      if (REGISTRATION_PROFILE.equals(ap)) {
-        registrationProfileEnabled = true;
-      }
-    }
+    registrationProfileEnabled = env.acceptsProfiles(Profiles.of(REGISTRATION_PROFILE));
   }
 
   @RequestMapping(method = RequestMethod.GET, path = "/start-registration")
@@ -50,7 +45,7 @@ public class DefaultStartRegistrationController {
         && !authentication.getAuthorities().contains(EXT_AUTHN_UNREGISTERED_USER_AUTH)) {
       return "iam/dashboard";
     }
-    
+
     if (registrationProfileEnabled) {
       return "iam/register";
     } else {

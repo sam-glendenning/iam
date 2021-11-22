@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2019
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class ListResponseDTO<T> {
     public <S> Builder<T> fromPage(Page<S> page, Pageable op) {
       this.totalResults = page.getTotalElements();
       this.itemsPerPage = page.getNumberOfElements();
-      this.startIndex = op.getOffset() + 1;
+      this.startIndex = (int) op.getOffset() + 1;
       return this;
     }
 

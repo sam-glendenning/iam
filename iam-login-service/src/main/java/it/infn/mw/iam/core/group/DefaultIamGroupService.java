@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2019
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ public class DefaultIamGroupService implements IamGroupService, ApplicationEvent
 
     Long membersCount = groupRepo.countGroupMembersByGroupUuid(g.getUuid());
 
-    if (membersCount > 0L || g.getChildrenGroups().size() > 0) {
+    if (membersCount > 0L || !g.getChildrenGroups().isEmpty()) {
       throw new InvalidGroupOperationError("Group is not empty");
     }
 
