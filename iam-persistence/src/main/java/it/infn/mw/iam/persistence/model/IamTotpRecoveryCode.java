@@ -16,7 +16,6 @@
 package it.infn.mw.iam.persistence.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,8 +26,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "iam_totp_recovery_code")
@@ -42,21 +39,13 @@ public class IamTotpRecoveryCode implements Serializable {
   private String code;
 
   @ManyToOne(fetch = FetchType.EAGER)
-  @JoinColumn(referencedColumnName = "id", nullable = false)
+  @JoinColumn(referencedColumnName = "id", nullable = false, name = "totp_mfa_id")
   private IamTotpMfa totpMfa;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "creationtime", nullable = false)
-  private Date creationTime;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "lastupdatetime", nullable = false)
-  private Date lastUpdateTime;
 
   public IamTotpRecoveryCode() {}
 
-  public IamTotpRecoveryCode(String code) {
-    this.code = code;
+  public IamTotpRecoveryCode(IamTotpMfa totpMfa) {
+    this.totpMfa = totpMfa;
   }
 
   public Long getId() {
@@ -81,26 +70,6 @@ public class IamTotpRecoveryCode implements Serializable {
 
   public void setCode(final String code) {
     this.code = code;
-  }
-
-  public Date getCreationTime() {
-
-    return creationTime;
-  }
-
-  public void setCreationTime(final Date creationTime) {
-
-    this.creationTime = creationTime;
-  }
-
-  public Date getLastUpdateTime() {
-
-    return lastUpdateTime;
-  }
-
-  public void setLastUpdateTime(final Date lastUpdateTime) {
-
-    this.lastUpdateTime = lastUpdateTime;
   }
 
   @Override

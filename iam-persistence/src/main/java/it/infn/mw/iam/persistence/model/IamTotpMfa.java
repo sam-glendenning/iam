@@ -16,7 +16,6 @@
 package it.infn.mw.iam.persistence.model;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,12 +29,11 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "iam_totp_mfa")
 public class IamTotpMfa implements Serializable {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -45,14 +43,6 @@ public class IamTotpMfa implements Serializable {
 
   @Column(name = "secret")
   private String secret;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "creationtime", nullable = false)
-  private Date creationTime;
-
-  @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "lastupdatetime", nullable = false)
-  private Date lastUpdateTime;
 
   @Column(name = "active", nullable = false)
   private boolean active;
@@ -65,8 +55,8 @@ public class IamTotpMfa implements Serializable {
 
   public IamTotpMfa() {}
 
-  public IamTotpMfa(String secret) {
-    this.secret = secret;
+  public IamTotpMfa(IamAccount account) {
+    this.account = account;
   }
 
   public Long getId() {
@@ -93,26 +83,6 @@ public class IamTotpMfa implements Serializable {
     this.secret = secret;
   }
 
-  public Date getCreationTime() {
-
-    return creationTime;
-  }
-
-  public void setCreationTime(final Date creationTime) {
-
-    this.creationTime = creationTime;
-  }
-
-  public Date getLastUpdateTime() {
-
-    return lastUpdateTime;
-  }
-
-  public void setLastUpdateTime(final Date lastUpdateTime) {
-
-    this.lastUpdateTime = lastUpdateTime;
-  }
-
   public boolean isActive() {
 
     return active;
@@ -134,6 +104,10 @@ public class IamTotpMfa implements Serializable {
       this.recoveryCodes.clear();
       this.recoveryCodes.addAll(recoveryCodes);
     }
+  }
+
+  public void regenerateRecoveryCodes() {
+    // TODO
   }
 
   @Override

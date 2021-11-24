@@ -18,11 +18,19 @@ package it.infn.mw.iam.core.user;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import it.infn.mw.iam.audit.events.account.multi_factor_authentication.MultiFactorSecretAddedEvent;
+import it.infn.mw.iam.audit.events.account.multi_factor_authentication.MultiFactorSecretRemovedEvent;
 import static it.infn.mw.iam.core.lifecycle.ExpiredAccountsHandler.LIFECYCLE_STATUS_LABEL;
+import it.infn.mw.iam.core.user.exception.MfaSecretAlreadyBoundException;
+import it.infn.mw.iam.core.user.exception.MfaSecretNotFoundException;
+import it.infn.mw.iam.persistence.model.IamTotpMfa;
+import it.infn.mw.iam.persistence.model.IamTotpRecoveryCode;
+
 import static java.util.Objects.isNull;
 
 import java.time.Clock;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +49,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import dev.samstevens.totp.recovery.RecoveryCodeGenerator;
+import dev.samstevens.totp.secret.SecretGenerator;
 import it.infn.mw.iam.audit.events.account.AccountCreatedEvent;
 import it.infn.mw.iam.audit.events.account.AccountDisabledEvent;
 import it.infn.mw.iam.audit.events.account.AccountEndTimeUpdatedEvent;
@@ -80,12 +90,15 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
   private final PasswordEncoder passwordEncoder;
   private ApplicationEventPublisher eventPublisher;
   private final OAuth2TokenEntityService tokenService;
+  private final SecretGenerator secretGenerator;
+  private final RecoveryCodeGenerator recoveryCodeGenerator;
 
   @Autowired
   public DefaultIamAccountService(Clock clock, IamAccountRepository accountRepo,
       IamGroupRepository groupRepo, IamAuthoritiesRepository authoritiesRepo,
       PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher,
-      OAuth2TokenEntityService tokenService) {
+      OAuth2TokenEntityService tokenService, SecretGenerator secretGenerator,
+      RecoveryCodeGenerator recoveryCodeGenerator) {
 
     this.clock = clock;
     this.accountRepo = accountRepo;
@@ -94,6 +107,8 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
     this.passwordEncoder = passwordEncoder;
     this.eventPublisher = eventPublisher;
     this.tokenService = tokenService;
+    this.secretGenerator = secretGenerator;
+    this.recoveryCodeGenerator = recoveryCodeGenerator;
   }
 
   private void labelSetEvent(IamAccount account, IamLabel label) {
@@ -118,6 +133,14 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
 
   private void attributeRemovedEvent(IamAccount account, IamAttribute attribute) {
     eventPublisher.publishEvent(new AccountAttributeRemovedEvent(this, account, attribute));
+  }
+
+  private void multiFactorSecretAddedEvent(IamAccount account) {
+    eventPublisher.publishEvent(new MultiFactorSecretAddedEvent(this, account));
+  }
+
+  private void multiFactorSecretRemovedEvent(IamAccount account) {
+    eventPublisher.publishEvent(new MultiFactorSecretRemovedEvent(this, account));
   }
 
   @Override
@@ -557,5 +580,49 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
   @Override
   public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
     eventPublisher = applicationEventPublisher;
+  }
+
+  // TODO encrypt secret and recovery codes
+  // TODO move this secret generation to its own class
+  @Override
+  public IamAccount addTotpMfaSecret(IamAccount account) {
+    if (!isNull(account.getTotpMfa())) {
+      throw new MfaSecretAlreadyBoundException(
+          "A multi-factor secret is already assigned to this account");
+    }
+
+    IamTotpMfa totpMfa = new IamTotpMfa(account);
+    totpMfa.setSecret(secretGenerator.generate());
+
+    String[] recoveryCodeStrings = recoveryCodeGenerator.generateCodes(6);
+    Set<IamTotpRecoveryCode> recoveryCodes = new HashSet<>();
+    for (String code : recoveryCodeStrings) {
+      IamTotpRecoveryCode recoveryCode = new IamTotpRecoveryCode(totpMfa);
+      recoveryCode.setCode(code);
+      recoveryCodes.add(recoveryCode);
+    }
+
+    totpMfa.setRecoveryCodes(recoveryCodes);
+    account.setTotpMfa(totpMfa);
+    totpMfa.setAccount(account);
+    account.touch();
+
+    accountRepo.save(account);
+    multiFactorSecretAddedEvent(account);
+    return account;
+  }
+
+  @Override
+  public IamAccount removeTotpMfaSecret(IamAccount account) {
+    if (isNull(account.getTotpMfa())) {
+      throw new MfaSecretNotFoundException("No multi-factor secret is attached to this account");
+    }
+
+    account.setTotpMfa(null);
+    account.touch();
+
+    accountRepo.save(account);
+    multiFactorSecretRemovedEvent(account);
+    return account;
   }
 }
