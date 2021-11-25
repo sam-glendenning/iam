@@ -18,8 +18,8 @@ package it.infn.mw.iam.core.user;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import it.infn.mw.iam.audit.events.account.multi_factor_authentication.MultiFactorSecretAddedEvent;
-import it.infn.mw.iam.audit.events.account.multi_factor_authentication.MultiFactorSecretRemovedEvent;
+import it.infn.mw.iam.audit.events.account.multi_factor_authentication.AuthenticatorAppEnabledEvent;
+import it.infn.mw.iam.audit.events.account.multi_factor_authentication.AuthenticatorAppDisabledEvent;
 import static it.infn.mw.iam.core.lifecycle.ExpiredAccountsHandler.LIFECYCLE_STATUS_LABEL;
 import it.infn.mw.iam.core.user.exception.MfaSecretAlreadyBoundException;
 import it.infn.mw.iam.core.user.exception.MfaSecretNotFoundException;
@@ -135,12 +135,12 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
     eventPublisher.publishEvent(new AccountAttributeRemovedEvent(this, account, attribute));
   }
 
-  private void multiFactorSecretAddedEvent(IamAccount account) {
-    eventPublisher.publishEvent(new MultiFactorSecretAddedEvent(this, account));
+  private void authenticatorAppEnabledEvent(IamAccount account) {
+    eventPublisher.publishEvent(new AuthenticatorAppEnabledEvent(this, account));
   }
 
-  private void multiFactorSecretRemovedEvent(IamAccount account) {
-    eventPublisher.publishEvent(new MultiFactorSecretRemovedEvent(this, account));
+  private void authenticatorAppDisabledEvent(IamAccount account) {
+    eventPublisher.publishEvent(new AuthenticatorAppDisabledEvent(this, account));
   }
 
   @Override
@@ -586,7 +586,7 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
   // TODO move this secret generation to its own class
   @Override
   public IamAccount addTotpMfaSecret(IamAccount account) {
-    if (!isNull(account.getTotpMfa())) {
+    if (!isNull(account.getTotpMfa()) && account.getTotpMfa().isActive()) {
       throw new MfaSecretAlreadyBoundException(
           "A multi-factor secret is already assigned to this account");
     }
@@ -605,24 +605,41 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
     totpMfa.setRecoveryCodes(recoveryCodes);
     account.setTotpMfa(totpMfa);
     totpMfa.setAccount(account);
-    account.touch();
 
     accountRepo.save(account);
-    multiFactorSecretAddedEvent(account);
     return account;
   }
 
   @Override
-  public IamAccount removeTotpMfaSecret(IamAccount account) {
+  public IamAccount enableTotpMfa(IamAccount account) {
     if (isNull(account.getTotpMfa())) {
       throw new MfaSecretNotFoundException("No multi-factor secret is attached to this account");
     }
 
-    account.setTotpMfa(null);
+    IamTotpMfa totpMfa = account.getTotpMfa();
+    totpMfa.setActive(true);
+    account.setTotpMfa(totpMfa);
     account.touch();
 
     accountRepo.save(account);
-    multiFactorSecretRemovedEvent(account);
+    authenticatorAppEnabledEvent(account);
+    return account;
+  }
+
+  @Override
+  public IamAccount disableTotpMfa(IamAccount account) {
+    if (!isNull(account.getTotpMfa())) {
+      throw new MfaSecretAlreadyBoundException(
+          "A multi-factor secret is already assigned to this account");
+    }
+
+    IamTotpMfa totpMfa = account.getTotpMfa();
+    totpMfa.setActive(false);
+    account.setTotpMfa(totpMfa);
+    account.touch();
+
+    accountRepo.save(account);
+    authenticatorAppDisabledEvent(account);
     return account;
   }
 }
