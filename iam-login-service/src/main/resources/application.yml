@@ -15,6 +15,10 @@
 #
 
 server:
+  servlet:
+    session:
+      timeout: ${IAM_SESSION_TIMEOUT_SECS:1800}
+        
   error:
     path: /error
     
@@ -27,14 +31,23 @@ server:
       directory: ${IAM_TOMCAT_ACCESS_LOG_DIRECTORY:/tmp}
       pattern: "%{X-Forwarded-For}i %l %u %t \"%r\" %s %b"
 
-  use-forward-headers: ${IAM_USE_FORWARDED_HEADERS:false}
+  forward-headers-strategy: ${IAM_FORWARD_HEADERS_STRATEGY:none}
   
 spring:
+  redis:
+    host: ${IAM_SPRING_REDIS_HOST:localhost}
+    port: ${IAM_SPRING_REDIS_PORT:6379}
+    password: ${IAM_SPRING_REDIS_PASSWORD:}
+    
   application:
     name: INDIGO IAM
   
   session:
     timeout: ${IAM_SESSION_TIMEOUT_SECS:1800}
+    store-type: ${IAM_SPRING_SESSION_STORE_TYPE:none}
+    redis:
+      flush-mode: on-save
+      namespace: iam:session
      
   security:
     filter:
@@ -44,7 +57,10 @@ spring:
     default: h2-test
     group:
      "h2-test": "h2,saml,registration"
+     "h2-test-redis": "h2,saml,registration,redis-test"
      "mysql-test": "mysql,saml,registration"
+     "mysql-test-tc": "mysql-test-tc,saml,registration"
+     "mysql-test-tc-redis": "mysql-test-tc,saml,registration,redis-test"
      "prod": "mysql,flyway-repair"
     
   jpa:
@@ -61,6 +77,7 @@ spring:
     template-loader-path: ${IAM_CUSTOM_TEMPLATE_LOCATION:classpath:/email-templates}
 
 iam:
+  
   host: ${IAM_HOST:localhost}
   baseUrl: ${IAM_BASE_URL:http://${iam.host}:8080}
   issuer: ${IAM_ISSUER:http://${iam.host}:8080}
@@ -179,6 +196,8 @@ clientRegistration:
 
 management:
   health:
+      redis:
+        enabled: ${IAM_HEALTH_REDIS_PROBE_ENABLED:false} 
       mail:
         enabled: ${IAM_HEALTH_MAIL_PROBE_ENABLED:false} 
   endpoints:
@@ -191,12 +210,11 @@ management:
   endpoint:
     info:
       enabled: true
-    health:
+    health: 
       show-components: always 
       enabled: true
       show-details: when-authorized
       roles:
-      - ADMIN
       - ACTUATOR
       
     metrics:
