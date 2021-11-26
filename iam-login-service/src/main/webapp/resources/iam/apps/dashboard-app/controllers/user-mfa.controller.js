@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2019
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ function UserMfaController(
     getMfaSettings();
   };
 
+  // TODO include this data in what is fetched from the /scim/me endpoint
   function getMfaSettings() {
     $http.get('/iam/multi-factor-settings/get-settings').then(function(response) {
       userMfaCtrl.authenticatorAppActive = response.data.authenticatorAppActive;
