@@ -33,7 +33,7 @@ function UserMfaController(
 
   // TODO include this data in what is fetched from the /scim/me endpoint
   function getMfaSettings() {
-    $http.get('/iam/multi-factor-settings/get-settings').then(function(response) {
+    $http.get('/iam/multi-factor-settings').then(function(response) {
       userMfaCtrl.authenticatorAppActive = response.data.authenticatorAppActive;
     });
   }
