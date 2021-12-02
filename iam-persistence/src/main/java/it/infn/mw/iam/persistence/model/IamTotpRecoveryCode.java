@@ -31,6 +31,8 @@ import javax.persistence.Table;
 @Table(name = "iam_totp_recovery_code")
 public class IamTotpRecoveryCode implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -74,12 +76,21 @@ public class IamTotpRecoveryCode implements Serializable {
 
   @Override
   public String toString() {
-    return "IamAccount [id=" + id + ", code=" + code + "]";
+    return "IamTotpRecoveryCode [code=" + code + ", id=" + id + "]";
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((code == null) ? 0 : code.hashCode());
+    result = prime * result + ((id == null) ? 0 : id.hashCode());
+    result = prime * result + ((totpMfa == null) ? 0 : totpMfa.hashCode());
+    return result;
+  }
 
+  @Override
+  public boolean equals(Object obj) {
     if (this == obj)
       return true;
     if (obj == null)
@@ -91,6 +102,16 @@ public class IamTotpRecoveryCode implements Serializable {
       if (other.code != null)
         return false;
     } else if (!code.equals(other.code))
+      return false;
+    if (id == null) {
+      if (other.id != null)
+        return false;
+    } else if (!id.equals(other.id))
+      return false;
+    if (totpMfa == null) {
+      if (other.totpMfa != null)
+        return false;
+    } else if (!totpMfa.equals(other.totpMfa))
       return false;
     return true;
   }

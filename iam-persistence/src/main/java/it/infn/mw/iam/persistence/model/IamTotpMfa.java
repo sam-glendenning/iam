@@ -34,9 +34,14 @@ import javax.persistence.Table;
 @Table(name = "iam_totp_mfa")
 public class IamTotpMfa implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @Column(nullable = false, length = 36, unique = true)
+  private String uuid;
 
   @OneToOne()
   private IamAccount account;
@@ -46,8 +51,6 @@ public class IamTotpMfa implements Serializable {
 
   @Column(name = "active", nullable = false)
   private boolean active;
-
-  // TODO do we need a UUID?
 
   @OneToMany(mappedBy = "totpMfa", cascade = CascadeType.ALL, fetch = FetchType.EAGER,
       orphanRemoval = true)
@@ -65,6 +68,14 @@ public class IamTotpMfa implements Serializable {
 
   public void setId(Long id) {
     this.id = id;
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(final String uuid) {
+    this.uuid = uuid;
   }
 
   public IamAccount getAccount() {
@@ -112,12 +123,20 @@ public class IamTotpMfa implements Serializable {
 
   @Override
   public String toString() {
-    return "IamAccount [id=" + id + ", secret=" + secret + ", active=" + active + "]";
+    return "IamTotpMfa [active=" + active + ", id=" + id + ", secret=" + secret + ", uuid=" + uuid
+        + "]";
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((uuid == null) ? 0 : uuid.hashCode());
+    return result;
+  }
 
+  @Override
+  public boolean equals(Object obj) {
     if (this == obj)
       return true;
     if (obj == null)
@@ -125,10 +144,10 @@ public class IamTotpMfa implements Serializable {
     if (getClass() != obj.getClass())
       return false;
     IamTotpMfa other = (IamTotpMfa) obj;
-    if (secret == null) {
-      if (other.secret != null)
+    if (uuid == null) {
+      if (other.uuid != null)
         return false;
-    } else if (!secret.equals(other.secret))
+    } else if (!uuid.equals(other.uuid))
       return false;
     return true;
   }
