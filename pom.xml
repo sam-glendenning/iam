@@ -20,10 +20,12 @@
   <name>INDIGO Identity and Access Manager (IAM) - Parent POM</name>
 
   <properties>
+    <iam.image.tag>${project.version}-${git.commit.id.abbrev}</iam.image.tag>
+    
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <java.version>11</java.version>
+    <java.version>17</java.version>
 
     <testcontainers.version>1.16.2</testcontainers.version>
 
@@ -291,7 +293,7 @@
             <configuration>
               <rules>
                 <requireJavaVersion>
-                  <version>11</version>
+                  <version>17</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
                   <version>3.6.0</version>
