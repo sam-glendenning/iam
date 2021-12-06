@@ -50,10 +50,12 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import it.infn.mw.iam.api.account.AccountUtils;
 import it.infn.mw.iam.api.aup.AUPSignatureCheckService;
-import it.infn.mw.iam.authn.EnforceAupSignatureSuccessHandler;
+// import it.infn.mw.iam.authn.EnforceAupSignatureSuccessHandler;
 import it.infn.mw.iam.authn.ExternalAuthenticationHintService;
 import it.infn.mw.iam.authn.HintAwareAuthenticationEntryPoint;
+import it.infn.mw.iam.authn.MultiFactorAuthenticationSuccessHandler;
 import it.infn.mw.iam.authn.RootIsDashboardSuccessHandler;
+import it.infn.mw.iam.authn.multi_factor_authentication.MultiFactorAuthenticationProvider;
 import it.infn.mw.iam.authn.oidc.OidcAuthenticationProvider;
 import it.infn.mw.iam.authn.oidc.OidcClientFilter;
 import it.infn.mw.iam.authn.x509.IamX509AuthenticationProvider;
@@ -63,13 +65,14 @@ import it.infn.mw.iam.authn.x509.X509AuthenticationCredentialExtractor;
 import it.infn.mw.iam.config.IamProperties;
 import it.infn.mw.iam.core.IamLocalAuthenticationProvider;
 import it.infn.mw.iam.persistence.repository.IamAccountRepository;
+import it.infn.mw.iam.persistence.repository.IamAuthoritiesRepository;
 
 @SuppressWarnings("deprecation")
 @Configuration
 @EnableWebSecurity
 public class IamWebSecurityConfig {
-  
-  
+
+
 
   @Bean
   public SecurityEvaluationContextExtension contextExtension() {
@@ -106,6 +109,7 @@ public class IamWebSecurityConfig {
     @Autowired
     private IamAccountRepository accountRepo;
 
+
     @Autowired
     private AUPSignatureCheckService aupSignatureCheckService;
 
@@ -121,6 +125,7 @@ public class IamWebSecurityConfig {
     @Autowired
     public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
       // @formatter:off
+      auth.authenticationProvider(new MultiFactorAuthenticationProvider(accountRepo, passwordEncoder));
       auth.authenticationProvider(new IamLocalAuthenticationProvider(iamProperties, iamUserDetailsService, passwordEncoder));
       // @formatter:on
     }
@@ -194,15 +199,18 @@ public class IamWebSecurityConfig {
       AuthenticationSuccessHandler delegate =
           new RootIsDashboardSuccessHandler(iamBaseUrl, new HttpSessionRequestCache());
 
-      return new EnforceAupSignatureSuccessHandler(delegate, aupSignatureCheckService, accountUtils,
-          accountRepo);
+      return new MultiFactorAuthenticationSuccessHandler(accountUtils, delegate,
+          aupSignatureCheckService, accountRepo);
+
+      // return new EnforceAupSignatureSuccessHandler(delegate, aupSignatureCheckService,
+      // accountUtils, accountRepo);
     }
   }
 
   @Configuration
   @Order(101)
   public static class RegistrationConfig extends WebSecurityConfigurerAdapter {
-    
+
     public static final String START_REGISTRATION_ENDPOINT = "/start-registration";
 
     @Autowired
