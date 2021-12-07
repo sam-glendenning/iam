@@ -65,7 +65,6 @@ import it.infn.mw.iam.authn.x509.X509AuthenticationCredentialExtractor;
 import it.infn.mw.iam.config.IamProperties;
 import it.infn.mw.iam.core.IamLocalAuthenticationProvider;
 import it.infn.mw.iam.persistence.repository.IamAccountRepository;
-import it.infn.mw.iam.persistence.repository.IamAuthoritiesRepository;
 
 @SuppressWarnings("deprecation")
 @Configuration
@@ -108,7 +107,6 @@ public class IamWebSecurityConfig {
 
     @Autowired
     private IamAccountRepository accountRepo;
-
 
     @Autowired
     private AUPSignatureCheckService aupSignatureCheckService;
@@ -195,6 +193,7 @@ public class IamWebSecurityConfig {
       return new OAuth2WebSecurityExpressionHandler();
     }
 
+    // TODO refactor this
     public AuthenticationSuccessHandler successHandler() {
       AuthenticationSuccessHandler delegate =
           new RootIsDashboardSuccessHandler(iamBaseUrl, new HttpSessionRequestCache());

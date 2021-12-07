@@ -28,28 +28,22 @@ import com.nimbusds.jose.JWSAlgorithm;
 
 import it.infn.mw.iam.authn.ExternalAuthenticationRegistrationInfo.ExternalAuthenticationType;
 import it.infn.mw.iam.config.login.LoginButtonProperties;
+import it.infn.mw.iam.config.multi_factor_authentication.VerifyButtonProperties;
 
 @Component
 @ConfigurationProperties(prefix = "iam")
 public class IamProperties {
 
   public enum EditableFields {
-    NAME,
-    SURNAME,
-    EMAIL,
-    PICTURE
+    NAME, SURNAME, EMAIL, PICTURE
   }
 
   public enum LocalAuthenticationAllowedUsers {
-    ALL,
-    VO_ADMINS,
-    NONE
+    ALL, VO_ADMINS, NONE
   }
 
   public enum LocalAuthenticationLoginPageMode {
-    VISIBLE,
-    HIDDEN,
-    HIDDEN_WITH_LINK
+    VISIBLE, HIDDEN, HIDDEN_WITH_LINK
   }
 
   public static class AccountLinkingProperties {
@@ -352,9 +346,7 @@ public class IamProperties {
   public static class JWTProfile {
 
     public enum Profile {
-      IAM,
-      WLCG,
-      AARC
+      IAM, WLCG, AARC
     }
 
     Profile defaultProfile = Profile.IAM;
@@ -540,6 +532,8 @@ public class IamProperties {
 
   private LoginButtonProperties loginButton = new LoginButtonProperties();
 
+  private VerifyButtonProperties verifyButton = new VerifyButtonProperties();
+
   private RegistractionAccessToken token = new RegistractionAccessToken();
 
   private PrivacyPolicy privacyPolicy = new PrivacyPolicy();
@@ -636,6 +630,14 @@ public class IamProperties {
 
   public void setLoginButton(LoginButtonProperties loginButton) {
     this.loginButton = loginButton;
+  }
+
+  public VerifyButtonProperties getVerifyButton() {
+    return verifyButton;
+  }
+
+  public void setVerifyButton(VerifyButtonProperties verifyButton) {
+    this.verifyButton = verifyButton;
   }
 
   public void setPrivacyPolicy(PrivacyPolicy privacyPolicy) {
