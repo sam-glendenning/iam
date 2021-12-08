@@ -65,7 +65,13 @@
     text-align: center;
 }
 
-#login-form #verify-form {
+#login-form {
+    padding-top: 1em;
+    margin: 0 auto;
+    max-width: 250px;
+}
+
+#verify-form {
     padding-top: 1em;
     margin: 0 auto;
     max-width: 250px;
@@ -101,7 +107,12 @@
     text-align: center;
 }
 
-#login-error #verify-error {
+#login-error {
+    margin: 0 auto;
+    max-width: 400px;
+}
+
+#verify-error {
     margin: 0 auto;
     max-width: 400px;
 }
