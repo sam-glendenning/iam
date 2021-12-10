@@ -604,6 +604,23 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
     // Generate secret
     IamTotpMfa totpMfa = new IamTotpMfa(account);
     totpMfa.setSecret(secretGenerator.generate());
+    totpMfa.setAccount(account);
+    account.setTotpMfa(totpMfa);
+
+    // Generate recovery codes
+    account = addTotpMfaRecoveryCodes(account);
+
+    accountRepo.save(account);
+    return account;
+  }
+
+  @Override
+  public IamAccount addTotpMfaRecoveryCodes(IamAccount account) {
+    if (isNull(account.getTotpMfa())) {
+      throw new MfaSecretNotFoundException("No multi-factor secret is attached to this account");
+    }
+
+    IamTotpMfa totpMfa = account.getTotpMfa();
 
     // Generate recovery codes
     String[] recoveryCodeStrings = recoveryCodeGenerator.generateCodes(6);
@@ -616,10 +633,6 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
 
     // Attach to account
     totpMfa.setRecoveryCodes(recoveryCodes);
-    account.setTotpMfa(totpMfa);
-    totpMfa.setAccount(account);
-
-    accountRepo.save(account);
     return account;
   }
 
@@ -642,9 +655,8 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
     IamTotpMfa totpMfa = account.getTotpMfa();
     totpMfa.setActive(true);
     account.setTotpMfa(totpMfa);
-    account.touch();
 
-    accountRepo.save(account);
+    account = saveAccount(account);
     authenticatorAppEnabledEvent(account);
     return account;
   }
@@ -665,9 +677,8 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
     }
 
     account.setTotpMfa(null);
-    account.touch();
 
-    accountRepo.save(account);
+    account = saveAccount(account);
     authenticatorAppDisabledEvent(account);
     return account;
   }

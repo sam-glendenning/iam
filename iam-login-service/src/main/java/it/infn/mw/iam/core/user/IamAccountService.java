@@ -192,6 +192,8 @@ public interface IamAccountService {
    */
   IamAccount addTotpMfaSecret(IamAccount account);
 
+  IamAccount addTotpMfaRecoveryCodes(IamAccount account);
+
   /**
    * Enable TOTP MFA on account with TOTP secret
    * 
