@@ -16,33 +16,34 @@
 'use strict';
 
 angular.module('dashboardApp')
-    .controller('UserMfaController', UserMfaController);
+  .controller('UserMfaController', UserMfaController);
 
 UserMfaController.$inject = [
   '$http', '$scope', '$state', '$uibModalInstance', 'Utils', 'user', '$uibModal', 'toaster'
 ];
 
 function UserMfaController(
-    $http, $scope, $state, $uibModalInstance, Utils, user, $uibModal, toaster) {
+  $http, $scope, $state, $uibModalInstance, Utils, user, $uibModal, toaster) {
   var userMfaCtrl = this;
 
-  userMfaCtrl.$onInit = function() {
+  userMfaCtrl.$onInit = function () {
     console.log('UserMfaController onInit');
     getMfaSettings();
   };
 
   // TODO include this data in what is fetched from the /scim/me endpoint
   function getMfaSettings() {
-    $http.get('/iam/multi-factor-settings').then(function(response) {
+    $http.get('/iam/multi-factor-settings').then(function (response) {
       userMfaCtrl.authenticatorAppActive = response.data.authenticatorAppActive;
     });
   }
 
   userMfaCtrl.userToEdit = user;
-  
+
   userMfaCtrl.yubiKeyActive = false;
   userMfaCtrl.enableAuthenticatorApp = enableAuthenticatorApp;
   userMfaCtrl.disableAuthenticatorApp = disableAuthenticatorApp;
+  userMfaCtrl.viewRecoveryCodes = viewRecoveryCodes;
   userMfaCtrl.enableYubiKey = enableYubiKey;
   userMfaCtrl.disableYubiKey = disableYubiKey;
 
@@ -51,10 +52,10 @@ function UserMfaController(
       templateUrl: '/resources/iam/apps/dashboard-app/templates/home/enable-authenticator-app.html',
       controller: 'EnableAuthenticatorAppController',
       controllerAs: 'authAppCtrl',
-      resolve: {user: function() { return self.user; }}
+      resolve: { user: function () { return self.user; } }
     });
 
-    modalInstance.result.then(function(msg) {
+    modalInstance.result.then(function (msg) {
       return $uibModalInstance.close(msg);
     });
   }
@@ -64,10 +65,23 @@ function UserMfaController(
       templateUrl: '/resources/iam/apps/dashboard-app/templates/home/disable-authenticator-app.html',
       controller: 'DisableAuthenticatorAppController',
       controllerAs: 'authAppCtrl',
-      resolve: {user: function() { return self.user; }}
+      resolve: { user: function () { return self.user; } }
     });
 
-    modalInstance.result.then(function(msg) {
+    modalInstance.result.then(function (msg) {
+      return $uibModalInstance.close(msg);
+    });
+  }
+
+  function viewRecoveryCodes() {
+    var modalInstance = $uibModal.open({
+      templateUrl: '/resources/iam/apps/dashboard-app/templates/home/view-recovery-codes.html',
+      controller: 'ViewRecoveryCodesController',
+      controllerAs: 'authAppCtrl',
+      resolve: { user: function () { return self.user; } }
+    });
+
+    modalInstance.result.then(function (msg) {
       return $uibModalInstance.close(msg);
     });
   }
@@ -99,7 +113,7 @@ function UserMfaController(
 
   userMfaCtrl.message = '';
 
-  userMfaCtrl.submit = function() {
+  userMfaCtrl.submit = function () {
     return $uibModalInstance.close('Updated settings');
     // ResetPasswordService
     //     .updatePassword(
