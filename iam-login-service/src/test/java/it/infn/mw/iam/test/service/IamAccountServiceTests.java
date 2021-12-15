@@ -135,6 +135,7 @@ public class IamAccountServiceTests extends IamAccountServiceTestSupport {
     when(accountRepo.findByEmail(anyString())).thenReturn(Optional.empty());
     when(accountRepo.findByUsername(TEST_USERNAME)).thenReturn(Optional.of(TEST_ACCOUNT));
     when(accountRepo.findByEmail(TEST_EMAIL)).thenReturn(Optional.of(TEST_ACCOUNT));
+    when(accountRepo.save(any(IamAccount.class))).thenAnswer(i -> i.getArguments()[0]);
     when(authoritiesRepo.findByAuthority(anyString())).thenReturn(Optional.empty());
     when(authoritiesRepo.findByAuthority("ROLE_USER")).thenReturn(Optional.of(ROLE_USER_AUTHORITY));
     when(passwordEncoder.encode(any())).thenReturn(PASSWORD);
