@@ -115,14 +115,5 @@ function UserMfaController(
 
   userMfaCtrl.submit = function () {
     return $uibModalInstance.close('Updated settings');
-    // ResetPasswordService
-    //     .updatePassword(
-    //         userMfaCtrl.user.currentPassword,
-    //         userMfaCtrl.user.password)
-    //     .then(function() { return $uibModalInstance.close('Password updated'); })
-    //     .catch(function(error) {
-    //       console.error(error);
-    //       $scope.operationResult = Utils.buildErrorResult(error.data);
-    //     });
   };
 }
