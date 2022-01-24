@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2019
+ * Copyright (c) Istituto Nazionale di Fisica Nucleare (INFN). 2016-2021
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,10 @@ public class IamAccount implements Serializable {
   @OneToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "user_info_id")
   private IamUserInfo userInfo;
+
+  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+  @JoinColumn(name = "totp_mfa_id", nullable = true)
+  private IamTotpMfa totpMfa;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "last_login_time", nullable = true)
@@ -243,6 +247,14 @@ public class IamAccount implements Serializable {
   public void setActive(final boolean active) {
 
     this.active = active;
+  }
+
+  public IamTotpMfa getTotpMfa() {
+    return totpMfa;
+  }
+
+  public void setTotpMfa(final IamTotpMfa totpMfa) {
+    this.totpMfa = totpMfa;
   }
 
   public Set<IamSamlId> getSamlIds() {
