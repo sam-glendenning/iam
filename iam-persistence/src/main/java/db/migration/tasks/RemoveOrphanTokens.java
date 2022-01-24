@@ -17,11 +17,12 @@ package db.migration.tasks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import it.infn.mw.iam.persistence.migrations.BaseJdbcTemplateFlywayMigration;
+import it.infn.mw.iam.persistence.migrations.SpringJdbcFlywayMigration;
 
-public class RemoveOrphanTokens extends BaseJdbcTemplateFlywayMigration {
+public class RemoveOrphanTokens implements SpringJdbcFlywayMigration {
 
   public static final Logger LOG = LoggerFactory.getLogger(RemoveOrphanTokens.class);
 
@@ -41,7 +42,7 @@ public class RemoveOrphanTokens extends BaseJdbcTemplateFlywayMigration {
       "DELETE FROM refresh_token WHERE auth_holder_id NOT IN (SELECT id FROM authentication_holder)";
 
   @Override
-  public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
+  public void migrate(JdbcTemplate jdbcTemplate) throws DataAccessException {
 
     int updateResult = jdbcTemplate.update(DELETE_ACCESS_TOKENS_OF_DELETED_USERS);
     LOG.info("Removed {} access tokens owned by deleted users", updateResult);
