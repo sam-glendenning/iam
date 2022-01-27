@@ -53,21 +53,28 @@ public class IamTotpMfa implements Serializable {
   private boolean active;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "creationtime", nullable = false)
+  @Column(name = "creation_time", nullable = false)
   private Date creationTime;
 
   @Temporal(TemporalType.TIMESTAMP)
-  @Column(name = "lastupdatetime", nullable = false)
+  @Column(name = "last_update_time", nullable = false)
   private Date lastUpdateTime;
 
   @OneToMany(mappedBy = "totpMfa", cascade = CascadeType.ALL, fetch = FetchType.EAGER,
       orphanRemoval = true)
   private Set<IamTotpRecoveryCode> recoveryCodes = new HashSet<>();
 
-  public IamTotpMfa() {}
+  public IamTotpMfa() {
+    Date now = new Date();
+    setCreationTime(now);
+    setLastUpdateTime(now);
+  }
 
   public IamTotpMfa(IamAccount account) {
     this.account = account;
+    Date now = new Date();
+    setCreationTime(now);
+    setLastUpdateTime(now);
   }
 
   public Long getId() {
