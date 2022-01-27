@@ -40,12 +40,9 @@ function UserMfaController(
 
   userMfaCtrl.userToEdit = user;
 
-  userMfaCtrl.yubiKeyActive = false;
   userMfaCtrl.enableAuthenticatorApp = enableAuthenticatorApp;
   userMfaCtrl.disableAuthenticatorApp = disableAuthenticatorApp;
   userMfaCtrl.viewRecoveryCodes = viewRecoveryCodes;
-  userMfaCtrl.enableYubiKey = enableYubiKey;
-  userMfaCtrl.disableYubiKey = disableYubiKey;
 
   function enableAuthenticatorApp() {
     var modalInstance = $uibModal.open({
@@ -84,14 +81,6 @@ function UserMfaController(
     modalInstance.result.then(function (msg) {
       return $uibModalInstance.close(msg);
     });
-  }
-
-  function enableYubiKey() {
-    return true;
-  }
-
-  function disableYubiKey() {
-    return true;
   }
 
   userMfaCtrl.dismiss = dismiss;
