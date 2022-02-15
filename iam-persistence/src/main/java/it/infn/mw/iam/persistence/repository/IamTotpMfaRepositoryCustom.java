@@ -22,5 +22,5 @@ import it.infn.mw.iam.persistence.model.IamTotpMfa;
 
 public interface IamTotpMfaRepositoryCustom {
 
-  Optional<IamTotpMfa> findByIamAccount(IamAccount account);
+  Optional<IamTotpMfa> findByAccount(IamAccount account);
 }

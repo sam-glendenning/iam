@@ -30,8 +30,8 @@ public class IamTotpMfaRepositoryImpl implements IamTotpMfaRepositoryCustom {
   IamTotpMfaRepository repo;
 
   @Override
-  public Optional<IamTotpMfa> findByIamAccount(IamAccount account) {
-    return repo.findByIamAccountId(account.getId());
+  public Optional<IamTotpMfa> findByAccount(IamAccount account) {
+    return repo.findByAccount_Id(account.getId());
   }
 
 }
