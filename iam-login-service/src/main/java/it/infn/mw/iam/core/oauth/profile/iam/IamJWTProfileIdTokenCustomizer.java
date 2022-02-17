@@ -16,6 +16,7 @@
 package it.infn.mw.iam.core.oauth.profile.iam;
 
 import static it.infn.mw.iam.core.oauth.profile.iam.ClaimValueHelper.ADDITIONAL_CLAIMS;
+import static it.infn.mw.iam.authn.multi_factor_authentication.IamAuthenticationMethodReference.AUTHENTICATION_METHOD_REFERENCE_CLAIM_STRING;
 
 import java.util.Set;
 
@@ -64,10 +65,11 @@ public class IamJWTProfileIdTokenCustomizer extends BaseIdTokenCustomizer {
       .forEach(c -> idClaims.claim(c, claimValueHelper.getClaimValueFromUserInfo(c, info)));
 
     // Add the methods of authentication to the id_token
-    String amrParam = request.getRequestParameters().get("amr");
+    String amrParam =
+        request.getRequestParameters().get(AUTHENTICATION_METHOD_REFERENCE_CLAIM_STRING);
     if (amrParam != null) {
-      String[] amrArr = amrParam.split(",");
-      idClaims.claim("amr", amrArr);
+      String[] amrArr = amrParam.split("\\+");
+      idClaims.claim(AUTHENTICATION_METHOD_REFERENCE_CLAIM_STRING, amrArr);
     }
 
     includeLabelsInIdToken(idClaims, client, request, account, accessToken);
