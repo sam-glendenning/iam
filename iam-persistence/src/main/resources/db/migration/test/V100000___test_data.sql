@@ -15,15 +15,15 @@ INSERT INTO client_details (id, client_id, client_secret, client_name, dynamical
   
 INSERT INTO client_details (id, client_id, client_secret, client_name, dynamically_registered,
   refresh_token_validity_seconds, access_token_validity_seconds, id_token_validity_seconds, allow_introspection,
-  token_endpoint_auth_method, require_auth_time, device_code_validity_seconds) VALUES
+  token_endpoint_auth_method, require_auth_time, device_code_validity_seconds, created_at) VALUES
   (12, 'device-code-client', 'secret', 'Device code client', false, null, 3600, 600, true, 'SECRET_BASIC', false, 
-   600);
+   600, CURRENT_TIMESTAMP());
 
 INSERT INTO client_details (id, client_id, client_secret, client_name, dynamically_registered,
   refresh_token_validity_seconds, access_token_validity_seconds, id_token_validity_seconds, device_code_validity_seconds, 
-  allow_introspection, token_endpoint_auth_method, require_auth_time) VALUES
-(13, 'implicit-flow-client', null, 'Implicit Flow client', false, null, 3600, 600, 600, false, null, false),
-(14, 'public-dc-client', null, 'Public Device Code client', false, null, 3600, 600, 600, false, null, false);
+  allow_introspection, token_endpoint_auth_method, require_auth_time, created_at) VALUES
+(13, 'implicit-flow-client', null, 'Implicit Flow client', false, null, 3600, 600, 600, false, null, false, CURRENT_TIMESTAMP()),
+(14, 'public-dc-client', null, 'Public Device Code client', false, null, 3600, 600, 600, false, null, false, CURRENT_TIMESTAMP());
 
 INSERT INTO client_details (id, client_id, client_secret, client_name, dynamically_registered,
   refresh_token_validity_seconds, access_token_validity_seconds, id_token_validity_seconds, allow_introspection,
