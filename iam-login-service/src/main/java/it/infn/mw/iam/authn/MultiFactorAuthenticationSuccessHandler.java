@@ -15,7 +15,7 @@
  */
 package it.infn.mw.iam.authn;
 
-import static it.infn.mw.iam.core.web.EnforceAupFilter.REQUESTING_SIGNATURE;
+import static it.infn.mw.iam.core.web.aup.EnforceAupFilter.REQUESTING_SIGNATURE;
 import static it.infn.mw.iam.authn.multi_factor_authentication.MfaVerifyController.MFA_VERIFY_URL;
 
 import java.io.IOException;

@@ -2,7 +2,7 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.springframework.boot</groupId>
@@ -15,7 +15,7 @@
 
   <groupId>it.infn.mw</groupId>
   <artifactId>iam-parent</artifactId>
-  <version>1.8.0-spring-update-SNAPSHOT</version>
+  <version>1.8.0.sb25.pre031221</version>
   <packaging>pom</packaging>
   <name>INDIGO Identity and Access Manager (IAM) - Parent POM</name>
 
@@ -29,7 +29,7 @@
 
     <testcontainers.version>1.16.2</testcontainers.version>
 
-    <mitreid.version>1.3.5.cnaf-spring-update-SNAPSHOT</mitreid.version>
+    <mitreid.version>1.3.5.cnaf-spring-update-080122</mitreid.version>
     <spring-security-oauth2.version>2.5.1.RELEASE</spring-security-oauth2.version>
     <spring-security-oauth2-client.version>5.6.1</spring-security-oauth2-client.version>
 
@@ -40,7 +40,7 @@
     <spring-boot.version>2.5.6</spring-boot.version>
 
     <angularjs.version>1.6.1</angularjs.version>
-    <angular-ui-bootstrap.version>2.5.0</angular-ui-bootstrap.version>
+    <angular-ui-bootstrap.version>2.5.6</angular-ui-bootstrap.version>
     <angular-ui-router.version>1.0.20</angular-ui-router.version>
     <angular-ui-select.version>0.19.8</angular-ui-select.version>
     <angular-sanitize.version>1.3.11</angular-sanitize.version>
@@ -119,7 +119,7 @@
       </dependency>
 
       <dependency>
-        <groupId>org.webjars</groupId>
+        <groupId>org.webjars.npm</groupId>
         <artifactId>angular-ui-bootstrap</artifactId>
         <version>${angular-ui-bootstrap.version}</version>
       </dependency>

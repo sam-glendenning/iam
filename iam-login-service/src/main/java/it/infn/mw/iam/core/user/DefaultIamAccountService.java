@@ -79,6 +79,7 @@ import it.infn.mw.iam.persistence.model.IamX509Certificate;
 import it.infn.mw.iam.persistence.repository.IamAccountRepository;
 import it.infn.mw.iam.persistence.repository.IamAuthoritiesRepository;
 import it.infn.mw.iam.persistence.repository.IamGroupRepository;
+import it.infn.mw.iam.persistence.repository.client.IamAccountClientRepository;
 
 @Service
 @Transactional
@@ -93,13 +94,14 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
   private final OAuth2TokenEntityService tokenService;
   private final SecretGenerator secretGenerator;
   private final RecoveryCodeGenerator recoveryCodeGenerator;
+  private final IamAccountClientRepository accountClientRepo;
 
   @Autowired
   public DefaultIamAccountService(Clock clock, IamAccountRepository accountRepo,
       IamGroupRepository groupRepo, IamAuthoritiesRepository authoritiesRepo,
       PasswordEncoder passwordEncoder, ApplicationEventPublisher eventPublisher,
-      OAuth2TokenEntityService tokenService, SecretGenerator secretGenerator,
-      RecoveryCodeGenerator recoveryCodeGenerator) {
+      SecretGenerator secretGenerator, RecoveryCodeGenerator recoveryCodeGenerator,
+      OAuth2TokenEntityService tokenService, IamAccountClientRepository accountClientRepo) {
 
     this.clock = clock;
     this.accountRepo = accountRepo;
@@ -110,6 +112,7 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
     this.tokenService = tokenService;
     this.secretGenerator = secretGenerator;
     this.recoveryCodeGenerator = recoveryCodeGenerator;
+    this.accountClientRepo = accountClientRepo;
   }
 
   private void labelSetEvent(IamAccount account, IamLabel label) {
@@ -202,6 +205,12 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
     return account;
   }
 
+  protected void removeClientLinks(IamAccount account) {
+
+    accountClientRepo.deleteByAccount(account);
+
+  }
+
 
   protected void deleteTokensForAccount(IamAccount account) {
 
@@ -224,6 +233,7 @@ public class DefaultIamAccountService implements IamAccountService, ApplicationE
   public IamAccount deleteAccount(IamAccount account) {
     checkNotNull(account, "cannot delete a null account");
     deleteTokensForAccount(account);
+    removeClientLinks(account);
     accountRepo.delete(account);
 
     eventPublisher.publishEvent(new AccountRemovedEvent(this, account,

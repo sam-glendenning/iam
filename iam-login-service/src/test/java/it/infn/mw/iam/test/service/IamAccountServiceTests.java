@@ -85,6 +85,7 @@ import it.infn.mw.iam.persistence.model.IamX509Certificate;
 import it.infn.mw.iam.persistence.repository.IamAccountRepository;
 import it.infn.mw.iam.persistence.repository.IamAuthoritiesRepository;
 import it.infn.mw.iam.persistence.repository.IamGroupRepository;
+import it.infn.mw.iam.persistence.repository.client.IamAccountClientRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IamAccountServiceTests extends IamAccountServiceTestSupport {
@@ -99,6 +100,9 @@ public class IamAccountServiceTests extends IamAccountServiceTestSupport {
 
   @Mock
   private IamAuthoritiesRepository authoritiesRepo;
+
+  @Mock
+  private IamAccountClientRepository accountClientRepo;
 
   @Mock
   private PasswordEncoder passwordEncoder;
@@ -150,7 +154,8 @@ public class IamAccountServiceTests extends IamAccountServiceTestSupport {
     when(recoveryCodeGenerator.generateCodes(anyInt())).thenReturn(testArray);
 
     accountService = new DefaultIamAccountService(clock, accountRepo, groupRepo, authoritiesRepo,
-        passwordEncoder, eventPublisher, tokenService, secretGenerator, recoveryCodeGenerator);
+        passwordEncoder, eventPublisher, secretGenerator, recoveryCodeGenerator, tokenService,
+        accountClientRepo);
   }
 
   @Test(expected = NullPointerException.class)
