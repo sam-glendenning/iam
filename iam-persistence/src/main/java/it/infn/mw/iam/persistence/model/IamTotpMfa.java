@@ -141,12 +141,8 @@ public class IamTotpMfa implements Serializable {
   }
 
   public void setRecoveryCodes(final Set<IamTotpRecoveryCode> recoveryCodes) {
-    if (this.recoveryCodes.isEmpty()) {
-      this.recoveryCodes = recoveryCodes;
-    } else {
-      this.recoveryCodes.clear();
-      this.recoveryCodes.addAll(recoveryCodes);
-    }
+    this.recoveryCodes.clear();
+    this.recoveryCodes.addAll(recoveryCodes);
   }
 
   @Override

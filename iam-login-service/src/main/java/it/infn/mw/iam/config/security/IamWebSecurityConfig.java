@@ -71,6 +71,7 @@ import it.infn.mw.iam.authn.x509.X509AuthenticationCredentialExtractor;
 import it.infn.mw.iam.config.IamProperties;
 import it.infn.mw.iam.core.IamLocalAuthenticationProvider;
 import it.infn.mw.iam.persistence.repository.IamAccountRepository;
+import it.infn.mw.iam.persistence.repository.IamTotpMfaRepository;
 
 @SuppressWarnings("deprecation")
 @Configuration
@@ -115,6 +116,9 @@ public class IamWebSecurityConfig {
     private IamAccountRepository accountRepo;
 
     @Autowired
+    private IamTotpMfaRepository totpMfaRepository;
+
+    @Autowired
     private AUPSignatureCheckService aupSignatureCheckService;
 
     @Autowired
@@ -129,7 +133,7 @@ public class IamWebSecurityConfig {
     @Autowired
     public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
       // @formatter:off
-      auth.authenticationProvider(new IamLocalAuthenticationProvider(iamProperties, iamUserDetailsService, passwordEncoder, accountRepo));
+      auth.authenticationProvider(new IamLocalAuthenticationProvider(iamProperties, iamUserDetailsService, passwordEncoder, accountRepo, totpMfaRepository));
       // @formatter:on
     }
 
