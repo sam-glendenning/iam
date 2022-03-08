@@ -15,8 +15,8 @@
  */
 package it.infn.mw.iam.core.oauth.profile.iam;
 
-import static it.infn.mw.iam.core.oauth.profile.iam.ClaimValueHelper.ADDITIONAL_CLAIMS;
 import static it.infn.mw.iam.authn.multi_factor_authentication.IamAuthenticationMethodReference.AUTHENTICATION_METHOD_REFERENCE_CLAIM_STRING;
+import static it.infn.mw.iam.core.oauth.profile.iam.ClaimValueHelper.ADDITIONAL_CLAIMS;
 
 import java.util.Set;
 
@@ -25,8 +25,6 @@ import com.nimbusds.jwt.JWTClaimsSet.Builder;
 import org.mitre.oauth2.model.ClientDetailsEntity;
 import org.mitre.oauth2.model.OAuth2AccessTokenEntity;
 import org.mitre.openid.connect.service.ScopeClaimTranslationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 
 import it.infn.mw.iam.config.IamProperties;
@@ -40,8 +38,6 @@ public class IamJWTProfileIdTokenCustomizer extends BaseIdTokenCustomizer {
 
   protected final ScopeClaimTranslationService scopeClaimConverter;
   protected final ClaimValueHelper claimValueHelper;
-
-  public static final Logger LOG = LoggerFactory.getLogger(IamJWTProfileIdTokenCustomizer.class);
 
   public IamJWTProfileIdTokenCustomizer(IamAccountRepository accountRepo,
       ScopeClaimTranslationService scopeClaimConverter, ClaimValueHelper claimValueHelper,
@@ -64,7 +60,8 @@ public class IamJWTProfileIdTokenCustomizer extends BaseIdTokenCustomizer {
       .filter(ADDITIONAL_CLAIMS::contains)
       .forEach(c -> idClaims.claim(c, claimValueHelper.getClaimValueFromUserInfo(c, info)));
 
-    // Add the methods of authentication to the id_token
+    // Add the methods of authentication to the id_token. These were added to the OAuth2 request
+    // from the ExtendedHttpServletRequest
     String amrParam =
         request.getRequestParameters().get(AUTHENTICATION_METHOD_REFERENCE_CLAIM_STRING);
     if (amrParam != null) {
